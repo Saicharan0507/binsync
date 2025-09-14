@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Waste Management - Unique UI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      margin: 0; 
+      padding: 16px; 
+      background: #000; 
+      color: #e0e0e0; 
+    }
+    header { 
+      display: flex; 
+      gap: 16px; 
+      align-items: center; 
+      justify-content: space-between; 
+      margin-bottom: 20px;
+      animation: fadeIn 2s ease;
+    }
+    h2 {
+      font-weight: 600;
+      font-size: 26px;
+      background: linear-gradient(90deg, #00f5d4, #9b5de5, #f15bb5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glow 4s infinite alternate;
+    }
+    nav { color: #aaa; }
+    .card { 
+      background: #111; 
+      border-radius: 12px; 
+      padding: 16px; 
+      box-shadow: 0 4px 20px rgba(0,0,0,.7); 
+      margin: 12px 0; 
+      transform: translateY(20px);
+      opacity: 0;
+      animation: slideUp 1s ease forwards;
+    }
+    .grid { 
+      display: grid; 
+      grid-template-columns: 1fr; 
+      gap: 16px; 
+    }
+    @media(min-width: 900px){ .grid { grid-template-columns: 1fr 1fr; } }
+    label { display: block; font-size: 14px; margin-bottom: 6px; }
+    button, input, select { 
+      padding: 10px; 
+      border-radius: 8px; 
+      border: none; 
+      font-family: 'Poppins', sans-serif;
+      background: #222; 
+      color: #fff; 
+      cursor: pointer; 
+      transition: 0.3s ease;
+    }
+    button:hover { background: #444; transform: scale(1.05); }
+    select, input { background: #1a1a1a; color: #eee; border: 1px solid #444; }
+    .small { font-size: 13px; color: #bbb; }
+    .tasks li { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      padding: 6px 0; 
+      border-bottom: 1px dashed #333; 
+    }
+
+    /* Radar Map Effect */
+    #map { 
+      position: relative;
+      height: 240px; 
+      background: radial-gradient(circle at center, #222 20%, #111 80%);
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      color: #80ed99; 
+      border-radius: 50%; 
+      overflow: hidden;
+    }
+    #map::before {
+      content: "";
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      border-radius: 50%;
+      background: rgba(0, 245, 212, 0.1);
+      animation: radarPulse 3s infinite;
+    }
+    @keyframes radarPulse {
+      from { transform: scale(0.5); opacity: 0.7; }
+      to { transform: scale(1.5); opacity: 0; }
+    }
+
+    img { border-radius: 10px; }
+
+    /* Animations */
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes glow {
+      from { text-shadow: 0 0 5px #00f5d4, 0 0 10px #9b5de5; }
+      to { text-shadow: 0 0 15px #f15bb5, 0 0 30px #00f5d4; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>Waste Utilities — Unique UI</h2>
+    <nav class="small">(demo frontend only)</nav>
+  </header>
+
+  <main class="grid">
+    <section class="card">
+      <h3>Dustbins & Compost Kits</h3>
+      <p class="small">Buy or request bins & kits. Links go to government/local channels.</p>
+      <div>
+        <label>Item</label>
+        <select id="item">
+          <option>Dry Waste Bin</option>
+          <option>Wet Waste Bin</option>
+          <option>Hazardous Bin</option>
+          <option>Compost Kit</option>
+        </select>
+      </div>
+      <div style="margin-top:8px; display:flex; gap:8px">
+        <button id="buy">Purchase</button>
+        <button id="request">Request Distribution Link</button>
+      </div>
+      <p id="shopMsg" class="small" style="margin-top:8px; color:#80ed99"></p>
+    </section>
+
+    <section class="card">
+      <h3>Waste Worker / Green Champion</h3>
+      <div id="loginBox">
+        <label>Worker ID</label>
+        <input id="workerId" placeholder="e.g. WKR-001" />
+        <div style="margin-top:8px">
+          <button id="loginBtn">Login</button>
+        </div>
+      </div>
+      <div id="dashboard" style="display:none; margin-top:12px">
+        <strong>Welcome, <span id="wid"></span></strong>
+        <h4 style="margin:8px 0">Assigned Tasks</h4>
+        <ul class="tasks" id="tasksList"></ul>
+        <div style="margin-top:8px">
+          <input id="newTask" placeholder="New task (e.g. Sector A - pickup)" />
+          <button id="assignBtn">Assign</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Waste Collection Vehicle Tracking</h3>
+      <div id="map">🚛 Tracking...</div>
+      <div style="margin-top:8px" class="small">
+        <button id="simulate">Simulate Live Update</button>
+        <span id="vehicleInfo" style="margin-left:8px"></span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Geo-tagged Photo Reporting</h3>
+      <p class="small">Upload photo to alert authorities. Geolocation (if allowed) will be attached.</p>
+      <input type="file" id="photo" accept="image/*" capture="environment" />
+      <div style="margin-top:8px; display:flex; gap:8px">
+        <button id="upload">Upload Report</button>
+        <button id="locNow">Capture Current Location</button>
+      </div>
+      <div id="preview" style="margin-top:8px"></div>
+      <p id="locText" class="small" style="color:#aaa"></p>
+    </section>
+  </main>
+
+  <script>
+    // Shopping
+    document.getElementById('buy').onclick = () => {
+      const item = document.getElementById('item').value;
+      document.getElementById('shopMsg').textContent = `Purchase initiated: ${item}. Redirecting to partner...`;
+    };
+    document.getElementById('request').onclick = () => {
+      const item = document.getElementById('item').value;
+      window.open('https://example.com/distribution?item=' + encodeURIComponent(item), '_blank');
+    };
+
+    // Worker Dashboard
+    const tasks = [
+      { id: 1, text: 'Zone 1 - Collect dry waste', done: false },
+      { id: 2, text: 'Community outreach - Block B', done: false }
+    ];
+    function renderTasks() {
+      const ul = document.getElementById('tasksList'); ul.innerHTML = '';
+      tasks.forEach(t => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${t.text}</span><span><button data-id="${t.id}" class="doneBtn">${t.done ? '✅' : 'Mark'}</button></span>`;
+        ul.appendChild(li);
+      });
+      document.querySelectorAll('.doneBtn').forEach(b => b.onclick = e => {
+        const id = +e.target.dataset.id; const obj = tasks.find(x => x.id === id); obj.done = true; renderTasks();
+      });
+    }
+    document.getElementById('loginBtn').onclick = () => {
+      const id = document.getElementById('workerId').value.trim();
+      if (!id) { alert('Enter Worker ID'); return }
+      document.getElementById('wid').textContent = id;
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      renderTasks();
+    };
+    document.getElementById('assignBtn').onclick = () => {
+      const text = document.getElementById('newTask').value.trim(); if (!text) return;
+      tasks.push({ id: Date.now(), text, done: false }); document.getElementById('newTask').value = ''; renderTasks();
+    };
+
+    // Vehicle tracking simulation
+    let vehicle = { id: 'V-101', lat: 12.97, lon: 77.59 };
+    document.getElementById('simulate').onclick = () => {
+      vehicle.lat += (Math.random() - 0.5) / 100;
+      vehicle.lon += (Math.random() - 0.5) / 100;
+      document.getElementById('vehicleInfo').textContent = `${vehicle.id} @ ${vehicle.lat.toFixed(4)}, ${vehicle.lon.toFixed(4)}`;
+      const map = document.getElementById('map'); 
+      map.textContent = `🚛 ${vehicle.id} — ${vehicle.lat.toFixed(4)}, ${vehicle.lon.toFixed(4)}`;
+    };
+
+    // Geo-tagged photo reporting
+    let lastCoords = null;
+    document.getElementById('locNow').onclick = () => {
+      if (!navigator.geolocation) { alert('Geolocation not available'); return }
+      navigator.geolocation.getCurrentPosition(p => {
+        lastCoords = p.coords; 
+        document.getElementById('locText').textContent = `Lat: ${p.coords.latitude.toFixed(6)}, Lon: ${p.coords.longitude.toFixed(6)}`;
+      }, err => { alert('Location denied or unavailable') });
+    };
+    document.getElementById('photo').onchange = e => {
+      const f = e.target.files[0]; if (!f) return;
+      const img = document.createElement('img'); 
+      img.style.maxWidth = '100%'; img.style.maxHeight = '180px';
+      img.src = URL.createObjectURL(f);
+      const p = document.getElementById('preview'); p.innerHTML = ''; p.appendChild(img);
+    };
+    document.getElementById('upload').onclick = () => {
+      const f = document.getElementById('photo').files[0];
+      if (!f) { alert('Please choose a photo'); return }
+      const report = { fileName: f.name, coords: lastCoords ? { lat: lastCoords.latitude, lon: lastCoords.longitude } : null, ts: new Date().toISOString() };
+      alert('Report prepared:\n' + JSON.stringify(report, null, 2));
+    };
+  </script>
+</body>
+</html>
